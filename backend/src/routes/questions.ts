@@ -1,59 +1,41 @@
-import { Router, Request, Response } from 'express';
-import prisma from '../prisma';
-import { CreateAnswerBody, RouteParams } from '../types';
+import { Router } from 'express';
+import { QuestionController } from '../controllers/questionController';
+import { validateBody, validateId } from '../middleware/validate';
+import { isCreateQuestionDto, isUpdateQuestionDto } from '../types';
 
+// Create router and controller instance
 const router = Router();
+const questionController = new QuestionController();
 
-// Get all answers for a specific question
-// Returns answers with user details, comments and vote count
-// GET /questions/:id/answers
-router.get('/:id/answers', async (req: Request<RouteParams>, res: Response) => {
-  try {
-    const answers = await prisma.question.findUnique({
-      where: { id: req.params.id },
-      include: {
-        answers: {
-          include: {
-            user: true,
-            comments: true,
-            votes: true
-          }
-        }
-      }
-    });
+// ROUTES
 
-    if (!answers) {
-      return res.status(404).json({ error: 'Question not found' });
-    }
+// GET routes
+router.get('/', questionController.getAllQuestions.bind(questionController));
+router.get('/:id', validateId, questionController.getQuestionById.bind(questionController));
 
-    res.json(answers);
-  } catch (error) {
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+// This one is problematic - needs to come after /:id to avoid conflicts
+// TODO: Consider moving to /users/:userId/questions
+router.get('/user/:userId', questionController.getQuestionsByUserId.bind(questionController));
 
-// Add a new answer to a question
-// Requires: content in request body and user authentication
-// POST /questions/:id/answers
-router.post('/:id/answers', async (req: Request<RouteParams, {}, CreateAnswerBody>, res: Response) => {
-  const { content, userId } = req.body;
+// POST routes
+router.post(
+  '/', 
+  validateBody(isCreateQuestionDto), 
+  questionController.createQuestion.bind(questionController)
+);
 
-  try {
-    const answer = await prisma.answer.create({
-      data: {
-        content,
-        userId,
-        questionId: req.params.id
-      },
-      include: {
-        user: true
-      }
-    });
+// PUT routes
+router.put(
+  '/:id', 
+  validateId, 
+  validateBody(isUpdateQuestionDto), 
+  questionController.updateQuestion.bind(questionController)
+);
 
-    res.status(201).json(answer);
-  } catch (error) {
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+// DELETE routes
+router.delete('/:id', validateId, questionController.deleteQuestion.bind(questionController));
+
+// Answer routes
+router.post('/:id/answers', validateId, questionController.addAnswer.bind(questionController));
 
 export default router; 

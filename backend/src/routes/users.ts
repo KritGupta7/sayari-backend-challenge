@@ -1,50 +1,34 @@
-import { Router, Request, Response } from 'express';
-import prisma from '../prisma';
-import { RouteParams } from '../types';
+import { Router } from 'express';
+import { UserController } from '../controllers/userController';
+import { validateBody, validateId } from '../middleware/validate';
+import { isCreateUserDto, isUpdateUserDto } from '../types';
 
+// Create router and controller
 const router = Router();
+const userController = new UserController();
 
-// Get all questions posted by a user
-// Returns questions with their answers, tags and votes
-// GET /users/:id/questions
-router.get('/:id/questions', async (req: Request<RouteParams>, res: Response) => {
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: req.params.id },
-      include: {
-        questions: {
-          include: {
-            answers: true,
-            tags: true,
-            votes: true
-          }
-        }
-      }
-    });
+// ROUTES
 
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+// GET routes
+router.get('/', userController.getAllUsers.bind(userController));
+router.get('/:id', validateId, userController.getUserById.bind(userController));
 
-    res.json(user.questions);
-  } catch (error) {
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+// POST routes
+router.post(
+  '/',
+  validateBody(isCreateUserDto),
+  userController.createUser.bind(userController)
+);
 
-// Delete a user and all their associated data
-// Requires admin privileges
-// DELETE /users/:id
-router.delete('/:id', async (req: Request<RouteParams>, res: Response) => {
-  try {
-    await prisma.user.delete({
-      where: { id: req.params.id }
-    });
+// PUT routes
+router.put(
+  '/:id',
+  validateId,
+  validateBody(isUpdateUserDto),
+  userController.updateUser.bind(userController)
+);
 
-    res.status(204).send();
-  } catch (error) {
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+// DELETE routes
+router.delete('/:id', validateId, userController.deleteUser.bind(userController));
 
 export default router; 
