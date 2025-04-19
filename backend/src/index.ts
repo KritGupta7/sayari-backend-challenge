@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import questionRoutes from './routes/questions';
 import userRoutes from './routes/users';
@@ -11,6 +11,6 @@ app.use(express.json());
 app.use('/questions', questionRoutes);
 app.use('/users', userRoutes);
 
-app.get('/health', (_req, res) => res.send('OK'));
+app.get('/health', (_req: Request, res: Response) => res.send('OK'));
 
 app.listen(3001, () => console.log('Server running on http://localhost:3001')); 

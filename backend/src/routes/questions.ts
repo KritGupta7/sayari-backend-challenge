@@ -1,12 +1,13 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import prisma from '../prisma';
+import { CreateAnswerBody, RouteParams } from '../types';
 
 const router = Router();
 
 // Get all answers for a specific question
 // Returns answers with user details, comments and vote count
 // GET /questions/:id/answers
-router.get('/:id/answers', async (req, res) => {
+router.get('/:id/answers', async (req: Request<RouteParams>, res: Response) => {
   try {
     const answers = await prisma.question.findUnique({
       where: { id: req.params.id },
@@ -34,9 +35,8 @@ router.get('/:id/answers', async (req, res) => {
 // Add a new answer to a question
 // Requires: content in request body and user authentication
 // POST /questions/:id/answers
-router.post('/:id/answers', async (req, res) => {
-  const { content } = req.body;
-  const userId = req.body.userId; // Replace with auth middleware
+router.post('/:id/answers', async (req: Request<RouteParams, {}, CreateAnswerBody>, res: Response) => {
+  const { content, userId } = req.body;
 
   try {
     const answer = await prisma.answer.create({

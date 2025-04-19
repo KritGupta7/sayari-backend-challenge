@@ -1,12 +1,13 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import prisma from '../prisma';
+import { RouteParams } from '../types';
 
 const router = Router();
 
 // Get all questions posted by a user
 // Returns questions with their answers, tags and votes
 // GET /users/:id/questions
-router.get('/:id/questions', async (req, res) => {
+router.get('/:id/questions', async (req: Request<RouteParams>, res: Response) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.params.id },
@@ -34,7 +35,7 @@ router.get('/:id/questions', async (req, res) => {
 // Delete a user and all their associated data
 // Requires admin privileges
 // DELETE /users/:id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req: Request<RouteParams>, res: Response) => {
   try {
     await prisma.user.delete({
       where: { id: req.params.id }
