@@ -3,6 +3,9 @@ import prisma from '../prisma';
 
 const router = Router();
 
+// Get all questions posted by a user
+// Returns questions with their answers, tags and votes
+// GET /users/:id/questions
 router.get('/:id/questions', async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
@@ -28,6 +31,9 @@ router.get('/:id/questions', async (req, res) => {
   }
 });
 
+// Delete a user and all their associated data
+// Requires admin privileges
+// DELETE /users/:id
 router.delete('/:id', async (req, res) => {
   try {
     await prisma.user.delete({
