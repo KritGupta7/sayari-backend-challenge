@@ -1,4 +1,4 @@
-import prisma from '../prisma';
+import { prisma } from '../prisma';
 import { CreateUserDto, UpdateUserDto } from '../types';
 import { NotFoundError } from '../utils/errors';
 
@@ -53,8 +53,15 @@ export class UserService {
       throw new Error('User with this email already exists');
     }
 
+    // Map our DTO to Prisma's expected format
+    const prismaUserData = {
+      name: data.username,
+      email: data.email,
+      password: data.password  // Note: In a real app, you'd hash this password
+    };
+
     return prisma.user.create({
-      data
+      data: prismaUserData
     });
   }
 
@@ -80,9 +87,15 @@ export class UserService {
       }
     }
 
+    // Map DTO fields to Prisma expected fields
+    const prismaUpdateData: any = {};
+    if (data.email) prismaUpdateData.email = data.email;
+    if (data.password) prismaUpdateData.password = data.password;
+    if (data.username) prismaUpdateData.name = data.username;
+
     return prisma.user.update({
       where: { id },
-      data
+      data: prismaUpdateData
     });
   }
 

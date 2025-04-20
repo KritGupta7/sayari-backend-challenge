@@ -11,10 +11,10 @@ export class QuestionController {
   async getAllQuestions(_req: Request, res: Response) {
     try {
       const questions = await questionService.getAllQuestions();
-      return res.json(questions);
+      res.json(questions);
     } catch (err) {
       console.log('Error fetching questions:', err);
-      return res.status(500).json({ error: 'Failed to fetch questions' });
+      res.status(500).json({ error: 'Failed to fetch questions' });
     }
   }
 
@@ -24,13 +24,14 @@ export class QuestionController {
     
     try {
       const question = await questionService.getQuestionById(id);
-      return res.json(question);
+      res.json(question);
     } catch (error) {
       // Check if it's our custom error
       if (error instanceof AppError) {
-        return res.status(error.statusCode).json({ error: error.message });
-      } 
-      return res.status(500).json({ error: 'Failed to fetch question' });
+        res.status(error.statusCode).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Failed to fetch question' });
+      }
     }
   }
 
@@ -44,13 +45,14 @@ export class QuestionController {
       
       // Return empty array if no questions found
       if (!questions.length) {
-        return res.json([]);
+        res.json([]);
+        return;
       }
       
-      return res.json(questions);
+      res.json(questions);
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Failed to fetch user questions' });
+      res.status(500).json({ error: 'Failed to fetch user questions' });
     }
   }
 
@@ -61,14 +63,15 @@ export class QuestionController {
       const { userId, ...questionData } = req.body;
       
       if (!userId) {
-        return res.status(400).json({ error: 'userId is required' });
+        res.status(400).json({ error: 'userId is required' });
+        return;
       }
       
       const question = await questionService.createQuestion(questionData, userId);
-      return res.status(201).json(question);
+      res.status(201).json(question);
     } catch (err) {
       console.error('Create question error:', err);
-      return res.status(500).json({ error: 'Failed to create question' });
+      res.status(500).json({ error: 'Failed to create question' });
     }
   }
 
@@ -78,17 +81,19 @@ export class QuestionController {
     
     // No updates provided
     if (!updates || Object.keys(updates).length === 0) {
-      return res.status(400).json({ error: 'No updates provided' });
+      res.status(400).json({ error: 'No updates provided' });
+      return;
     }
     
     try {
       const question = await questionService.updateQuestion(id, updates);
-      return res.json(question);
+      res.json(question);
     } catch (error) {
       if (error instanceof AppError) {
-        return res.status(error.statusCode).json({ error: error.message });
+        res.status(error.statusCode).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Failed to update question' });
       }
-      return res.status(500).json({ error: 'Failed to update question' });
     }
   }
 
@@ -96,12 +101,13 @@ export class QuestionController {
     try {
       await questionService.deleteQuestion(req.params.id);
       // Return 204 No Content
-      return res.status(204).send();
+      res.status(204).send();
     } catch (error) {
       if (error instanceof AppError) {
-        return res.status(error.statusCode).json({ error: error.message });
+        res.status(error.statusCode).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Failed to delete question' });
       }
-      return res.status(500).json({ error: 'Failed to delete question' });
     }
   }
 
@@ -112,17 +118,19 @@ export class QuestionController {
     
     // Validate request
     if (!content || !userId) {
-      return res.status(400).json({ error: 'Content and userId are required' });
+      res.status(400).json({ error: 'Content and userId are required' });
+      return;
     }
     
     try {
       const answer = await questionService.addAnswer(questionId, content, userId);
-      return res.status(201).json(answer);
+      res.status(201).json(answer);
     } catch (error) {
       if (error instanceof AppError) {
-        return res.status(error.statusCode).json({ error: error.message });
+        res.status(error.statusCode).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Failed to add answer' });
       }
-      return res.status(500).json({ error: 'Failed to add answer' });
     }
   }
 } 

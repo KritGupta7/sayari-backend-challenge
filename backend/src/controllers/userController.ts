@@ -13,11 +13,11 @@ export class UserController {
       const users = await userService.getAllUsers();
       
       // Simple response
-      return res.json(users);
+      res.json(users);
     } catch (err) {
       // Log error and return generic message
       console.error('Error fetching users:', err);
-      return res.status(500).json({ error: 'Failed to fetch users' });
+      res.status(500).json({ error: 'Failed to fetch users' });
     }
   }
 
@@ -26,20 +26,21 @@ export class UserController {
     const id = req.params.id;
     
     if (!id) {
-      return res.status(400).json({ error: 'User ID is required' });
+      res.status(400).json({ error: 'User ID is required' });
+      return;
     }
     
     try {
       const user = await userService.getUserById(id);
-      return res.json(user);
+      res.json(user);
     } catch (error) {
       // Handle different error types
       if (error instanceof AppError) {
-        return res.status(error.statusCode).json({ error: error.message });
-      } 
-      
-      // Default server error
-      return res.status(500).json({ error: 'Failed to fetch user' });
+        res.status(error.statusCode).json({ error: error.message });
+      } else {
+        // Default server error
+        res.status(500).json({ error: 'Failed to fetch user' });
+      }
     }
   }
 
@@ -51,7 +52,7 @@ export class UserController {
     try {
       // Create the user and return 201 Created
       const user = await userService.createUser(userData);
-      return res.status(201).json(user);
+      res.status(201).json(user);
     } catch (err) {
       console.error('Create user error:', err);
       
@@ -59,12 +60,12 @@ export class UserController {
       const errMsg = err instanceof Error ? err.message : 'Failed to create user';
       
       if (errMsg.includes('already exists')) {
-        return res.status(409).json({ error: errMsg });
+        res.status(409).json({ error: errMsg });
       } else if (errMsg.includes('Invalid email')) {
-        return res.status(400).json({ error: errMsg });
+        res.status(400).json({ error: errMsg });
+      } else {
+        res.status(500).json({ error: 'Failed to create user' });
       }
-      
-      return res.status(500).json({ error: 'Failed to create user' });
     }
   }
 
@@ -75,26 +76,27 @@ export class UserController {
     
     // Check if any updates were provided
     if (Object.keys(updates).length === 0) {
-      return res.status(400).json({ error: 'No updates provided' });
+      res.status(400).json({ error: 'No updates provided' });
+      return;
     }
     
     try {
       // Update the user
       const updatedUser = await userService.updateUser(id, updates);
-      return res.json(updatedUser);
+      res.json(updatedUser);
     } catch (error) {
       // Error handling
       if (error instanceof AppError) {
-        return res.status(error.statusCode).json({ error: error.message });
+        res.status(error.statusCode).json({ error: error.message });
+      } else {
+        // Handle known validation errors
+        const errMsg = error instanceof Error ? error.message : '';
+        if (errMsg.includes('already in use')) {
+          res.status(409).json({ error: errMsg });
+        } else {
+          res.status(500).json({ error: 'Failed to update user' });
+        }
       }
-      
-      // Handle known validation errors
-      const errMsg = error instanceof Error ? error.message : '';
-      if (errMsg.includes('already in use')) {
-        return res.status(409).json({ error: errMsg });
-      }
-      
-      return res.status(500).json({ error: 'Failed to update user' });
     }
   }
 
@@ -106,13 +108,13 @@ export class UserController {
       await userService.deleteUser(id);
       
       // Return 204 No Content
-      return res.status(204).send();
+      res.status(204).send();
     } catch (error) {
       if (error instanceof AppError) {
-        return res.status(error.statusCode).json({ error: error.message });
+        res.status(error.statusCode).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Failed to delete user' });
       }
-      
-      return res.status(500).json({ error: 'Failed to delete user' });
     }
   }
 } 

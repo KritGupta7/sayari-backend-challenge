@@ -1,4 +1,4 @@
-import prisma from '../prisma';
+import { prisma } from '../prisma';
 import { CreateQuestionDto, UpdateQuestionDto } from '../types';
 import { NotFoundError } from '../utils/errors';
 
