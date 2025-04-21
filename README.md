@@ -26,7 +26,7 @@ The application consists of a TypeScript-based backend API built with Express an
 1. Clone the repository:
    ```
    git clone https://github.com/KritGupta7/sayari-fullstack-challenge.git
-   cd sayari-fullstack-challenge
+   cd sayari-backend-challenge
    ```
 
 2. Install dependencies:
