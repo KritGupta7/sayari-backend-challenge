@@ -71,19 +71,24 @@ The backend provides the following REST API endpoints:
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/questions` | Get all questions |
-| GET | `/api/questions/:id` | Get a specific question with its answers |
-| POST | `/api/questions` | Create a new question |
-| DELETE | `/api/questions/:id` | Delete a question |
+| GET | `/questions` | Get all questions |
+| GET | `/questions/:id` | Get a specific question with its answers |
+| GET | `/questions/user/:userId` | Get all questions by a specific user |
+| GET | `/questions/user/:userId/answers` | Get all answers by a specific user |
+| POST | `/questions` | Create a new question |
+| PUT | `/questions/:id` | Update a question |
+| DELETE | `/questions/:id` | Delete a question |
+| POST | `/questions/:id/answers` | Add an answer to a question |
 
 ### Users
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/users` | Get all users |
-| GET | `/api/users/:id` | Get a specific user |
-| POST | `/api/users` | Create a new user |
-| DELETE | `/api/users/:id` | Delete a user and their associated content |
+| GET | `/users` | Get all users |
+| GET | `/users/:id` | Get a specific user |
+| POST | `/users` | Create a new user |
+| PUT | `/users/:id` | Update a user |
+| DELETE | `/users/:id` | Delete a user and their associated content |
 
 ### Error Responses
 
