@@ -1,6 +1,7 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { QuestionService } from '../services/questionService';
 import { CreateQuestionDto, UpdateQuestionDto } from '../types';
+import { CreateAnswerDto } from '../types/answers';
 import { AppError } from '../utils/errors';
 
 // Create a service instance - could be improved with dependency injection later
@@ -112,25 +113,25 @@ export class QuestionController {
   }
 
   // Add an answer to a question
-  async addAnswer(req: Request, res: Response) {
-    const questionId = req.params.id;
-    const { content, userId } = req.body;
-    
-    // Validate request
-    if (!content || !userId) {
-      res.status(400).json({ error: 'Content and userId are required' });
-      return;
-    }
-    
+  async addAnswer(req: Request, res: Response, next: NextFunction) {
     try {
-      const answer = await questionService.addAnswer(questionId, content, userId);
+      const questionId = req.params.id;
+      const { content, userId } = req.body;
+      
+      const answer = await questionService.addAnswer(questionId, { content, userId });
       res.status(201).json(answer);
     } catch (error) {
-      if (error instanceof AppError) {
-        res.status(error.statusCode).json({ error: error.message });
-      } else {
-        res.status(500).json({ error: 'Failed to add answer' });
-      }
+      next(error);
+    }
+  }
+
+  async getAnswersByUserId(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId } = req.params;
+      const answers = await questionService.getAnswersByUserId(userId);
+      res.json(answers);
+    } catch (error) {
+      next(error);
     }
   }
 } 

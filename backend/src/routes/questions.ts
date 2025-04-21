@@ -11,11 +11,12 @@ const questionController = new QuestionController();
 
 // GET routes
 router.get('/', questionController.getAllQuestions.bind(questionController));
-router.get('/:id', validateId, questionController.getQuestionById.bind(questionController));
-
-// This one is problematic - needs to come after /:id to avoid conflicts
-// TODO: Consider moving to /users/:userId/questions
+// Route for getting questions by user ID (must come before /:id)
 router.get('/user/:userId', questionController.getQuestionsByUserId.bind(questionController));
+// Route for getting answers by user ID
+router.get('/user/:userId/answers', questionController.getAnswersByUserId.bind(questionController));
+// Route for getting a specific question by ID
+router.get('/:id', validateId, questionController.getQuestionById.bind(questionController));
 
 // POST routes
 router.post(

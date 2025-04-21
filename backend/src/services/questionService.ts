@@ -1,6 +1,7 @@
 import { prisma } from '../prisma';
 import { CreateQuestionDto, UpdateQuestionDto } from '../types';
 import { NotFoundError } from '../utils/errors';
+import { CreateAnswerDto, Answer } from '../types/answers';
 
 export class QuestionService {
   // Get all questions with related data
@@ -122,26 +123,26 @@ export class QuestionService {
   }
 
   // Add a new answer to a question
-  async addAnswer(questionId: string, content: string, userId: string) {
-    // Make sure question exists
-    const question = await prisma.question.findUnique({
-      where: { id: questionId }
-    });
-
-    if (!question) {
-      throw new NotFoundError('Question');
-    }
-
-    // Create the answer
+  async addAnswer(questionId: string, data: CreateAnswerDto): Promise<Answer> {
     return prisma.answer.create({
       data: {
-        content,
-        userId,
+        ...data,
         questionId
       },
       include: {
         user: true
       }
+    });
+  }
+
+  async getAnswersByUserId(userId: string): Promise<Answer[]> {
+    return prisma.answer.findMany({
+      where: { userId },
+      include: {
+        question: true,
+        user: true
+      },
+      orderBy: { createdAt: 'desc' }
     });
   }
 } 
