@@ -40,7 +40,7 @@ async function main() {
   console.log('Start seeding...');
   
   // Read the data file
-  const filePath = path.join(__dirname, '../../stackoverfaux.json');
+  const filePath = path.join(__dirname, '../stackoverfaux.json');
   const rawData = fs.readFileSync(filePath, 'utf8');
   const questions: StackoverFauxQuestion[] = JSON.parse(rawData);
   
