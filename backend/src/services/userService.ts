@@ -53,11 +53,11 @@ export class UserService {
       throw new Error('User with this email already exists');
     }
 
-    // Map our DTO to Prisma's expected format
+    // Map our DTO to Prisma's expected format - removing password since it's not in the DB schema
     const prismaUserData = {
       name: data.username,
-      email: data.email,
-      password: data.password  // Note: In a real app, you'd hash this password
+      email: data.email
+      // password field removed as it doesn't exist in the Prisma schema
     };
 
     return prisma.user.create({
@@ -90,7 +90,6 @@ export class UserService {
     // Map DTO fields to Prisma expected fields
     const prismaUpdateData: any = {};
     if (data.email) prismaUpdateData.email = data.email;
-    if (data.password) prismaUpdateData.password = data.password;
     if (data.username) prismaUpdateData.name = data.username;
 
     return prisma.user.update({
