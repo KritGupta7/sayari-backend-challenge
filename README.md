@@ -15,13 +15,48 @@ The application consists of a TypeScript-based backend API built with Express an
 
 ## Installation Instructions
 
-### Prerequisites
+### Option 1: Using Docker (Recommended)
+
+The easiest way to run the application is using Docker and Docker Compose:
+
+1. Make sure you have [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed.
+
+2. Clone the repository:
+   ```
+   git clone https://github.com/KritGupta7/sayari-fullstack-challenge.git
+   cd sayari-fullstack-challenge
+   ```
+
+3. Start the application:
+   ```
+   docker-compose up
+   ```
+
+   This will:
+   - Build the backend container
+   - Start a PostgreSQL database
+   - Run database migrations
+   - Seed the database with sample data
+   - Start the backend server
+
+The API will be available at http://localhost:3001.
+
+To stop the application:
+```
+docker-compose down
+```
+
+### Option 2: Manual Setup
+
+If you prefer to run the application without Docker, follow these steps:
+
+#### Prerequisites
 
 - Node.js (v14 or higher)
 - npm or yarn
 - PostgreSQL database
 
-### Backend Setup
+#### Backend Setup
 
 1. Clone the repository:
    ```
