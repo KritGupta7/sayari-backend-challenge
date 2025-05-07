@@ -9,9 +9,13 @@ const questionService = new QuestionService();
 
 export class QuestionController {
   // Get all questions
-  async getAllQuestions(_req: Request, res: Response) {
+  async getAllQuestions(req: Request, res: Response) {
     try {
-      const questions = await questionService.getAllQuestions();
+      // Extract pagination parameters from query
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+      const offset = req.query.offset ? parseInt(req.query.offset as string) : undefined;
+      
+      const questions = await questionService.getAllQuestions(limit, offset);
       res.json(questions);
     } catch (err) {
       console.log('Error fetching questions:', err);
@@ -36,7 +40,7 @@ export class QuestionController {
     }
   }
 
-  // Different implementation style - using function expression
+  //implementation style - using function expression
   getQuestionsByUserId = async (req: Request, res: Response) => {
     const userId = req.params.userId;
     

@@ -1,6 +1,8 @@
 import { prisma } from '../prisma';
 import { CreateUserDto, UpdateUserDto } from '../types';
 import { NotFoundError } from '../utils/errors';
+import { v4 as uuidv4 } from 'uuid';
+import { User } from '../generated/prisma';
 
 export class UserService {
   // Get all users with their questions and answers
@@ -15,7 +17,7 @@ export class UserService {
   }
 
   // Get a specific user by ID
-  async getUserById(id: string) {
+  async getUserById(id: string): Promise<User> {
     // Find user with nested data
     const user = await prisma.user.findUnique({
       where: { id },
@@ -53,11 +55,14 @@ export class UserService {
       throw new Error('User with this email already exists');
     }
 
-    // Map our DTO to Prisma's expected format - removing password since it's not in the DB schema
+    // Generate a UUID for the user
+    const id = uuidv4();
+
+    // Map our DTO to Prisma's expected format
     const prismaUserData = {
+      id,
       name: data.username,
       email: data.email
-      // password field removed as it doesn't exist in the Prisma schema
     };
 
     return prisma.user.create({

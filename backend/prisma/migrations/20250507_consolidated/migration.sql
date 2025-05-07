@@ -1,23 +1,20 @@
-/*
-  Warnings:
+-- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
-  - You are about to drop the `Relationship` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropForeignKey
-ALTER TABLE "Relationship" DROP CONSTRAINT "Relationship_relatedUserId_fkey";
-
--- DropForeignKey
-ALTER TABLE "Relationship" DROP CONSTRAINT "Relationship_userId_fkey";
-
--- DropTable
-DROP TABLE "Relationship";
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "Question" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "content" TEXT NOT NULL,
+    "score" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "userId" TEXT NOT NULL,
@@ -29,6 +26,8 @@ CREATE TABLE "Question" (
 CREATE TABLE "Answer" (
     "id" TEXT NOT NULL,
     "content" TEXT NOT NULL,
+    "score" INTEGER NOT NULL DEFAULT 0,
+    "accepted" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "userId" TEXT NOT NULL,
@@ -52,7 +51,7 @@ CREATE TABLE "Comment" (
 
 -- CreateTable
 CREATE TABLE "Tag" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
 
     CONSTRAINT "Tag_pkey" PRIMARY KEY ("id")
@@ -60,7 +59,7 @@ CREATE TABLE "Tag" (
 
 -- CreateTable
 CREATE TABLE "QuestionVote" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "value" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "userId" TEXT NOT NULL,
@@ -71,7 +70,7 @@ CREATE TABLE "QuestionVote" (
 
 -- CreateTable
 CREATE TABLE "AnswerVote" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "value" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "userId" TEXT NOT NULL,
@@ -83,10 +82,13 @@ CREATE TABLE "AnswerVote" (
 -- CreateTable
 CREATE TABLE "_QuestionToTag" (
     "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL,
+    "B" INTEGER NOT NULL,
 
     CONSTRAINT "_QuestionToTag_AB_pkey" PRIMARY KEY ("A","B")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Tag_name_key" ON "Tag"("name");
@@ -135,3 +137,4 @@ ALTER TABLE "_QuestionToTag" ADD CONSTRAINT "_QuestionToTag_A_fkey" FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE "_QuestionToTag" ADD CONSTRAINT "_QuestionToTag_B_fkey" FOREIGN KEY ("B") REFERENCES "Tag"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+

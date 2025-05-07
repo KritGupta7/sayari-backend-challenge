@@ -157,7 +157,7 @@ The database uses a relational model with the following entities:
 - **User**: Represents application users
 - **Question**: Contains question data linked to a user
 - **Answer**: Represents answers to questions, linked to both questions and users
-- **Comment**: (If implemented) Represents comments on questions or answers
+- **Comment**: Represents comments on questions or answers
 
 ### API Design
 
