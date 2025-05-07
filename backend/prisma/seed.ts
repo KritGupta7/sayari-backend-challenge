@@ -6,19 +6,20 @@ const prisma = new PrismaClient();
 
 // Note: The JSON data has numeric IDs, but our DB schema uses string IDs
 // Updated interfaces to use string types to match the DB schema
+
 interface StackoverFauxUser {
-  id: string; // Changed from number to string
+  id: string;
   name: string;
 }
 
 interface StackoverFauxComment {
-  id: string; // Changed from number to string
+  id: string;
   body: string;
   user: StackoverFauxUser;
 }
 
 interface StackoverFauxAnswer {
-  id: string; // Changed from number to string
+  id: string;
   body: string;
   creation: number;
   score: number;
@@ -28,7 +29,7 @@ interface StackoverFauxAnswer {
 }
 
 interface StackoverFauxQuestion {
-  id: string; // Changed from number to string
+  id: string;
   title: string;
   body: string;
   creation: number;
@@ -54,37 +55,65 @@ async function main() {
   const jsonData = JSON.parse(rawData);
   
   // Convert all numeric IDs to strings
-  const questions: StackoverFauxQuestion[] = jsonData.map((q: any) => ({
-    ...q,
-    id: String(q.id),
-    user: { ...q.user, id: String(q.user.id) },
-    comments: (q.comments || []).map((c: any) => ({
-      ...c, 
-      id: String(c.id),
-      user: { ...c.user, id: String(c.user.id) }
-    })),
-    answers: (q.answers || []).map((a: any) => ({
-      ...a,
-      id: String(a.id),
-      user: { ...a.user, id: String(a.user.id) },
-      comments: (a.comments || []).map((c: any) => ({
-        ...c,
-        id: String(c.id),
-        user: { ...c.user, id: String(c.user.id) }
-      }))
-    }))
-  }));
+  // Breaking down the data transformation for better readability
+  const questions: StackoverFauxQuestion[] = jsonData.map((q: any) => {
+    // Transform question comments - each comment needs its user ID converted too
+    const transformedComments = (q.comments || []).map((comment: any) => ({
+      ...comment,
+      id: String(comment.id),
+      user: {
+        ...comment.user,
+        id: String(comment.user.id)
+      }
+    }));
+    
+    // Transform answers and their nested comments
+    const transformedAnswers = (q.answers || []).map((answer: any) => {
+      // Handle the comments on this specific answer
+      const answerComments = (answer.comments || []).map((comment: any) => ({
+        ...comment,
+        id: String(comment.id),
+        user: {
+          ...comment.user,
+          id: String(comment.user.id)
+        }
+      }));
+      
+      // Return the complete answer with string IDs
+      return {
+        ...answer,
+        id: String(answer.id),
+        user: {
+          ...answer.user,
+          id: String(answer.user.id)
+        },
+        comments: answerComments
+      };
+    });
+    
+    // Build and return the complete question object
+    return {
+      ...q,
+      id: String(q.id),
+      user: {
+        ...q.user,
+        id: String(q.user.id)
+      },
+      comments: transformedComments,
+      answers: transformedAnswers
+    };
+  });
   
   console.log(`Loaded ${questions.length} questions from stackoverfaux.json`);
   
   // Create questions and users
-  for (const question of questions) { // Removed the slice(0, 25) to include all questions
+  for (const question of questions) {
     try {
       // Create the user
       try {
         await prisma.user.create({
           data: {
-            id: question.user.id, // Now this is already a string
+            id: question.user.id,
             name: question.user.name,
             email: `user_${question.user.id}@example.com`,
             createdAt: new Date(),
@@ -99,11 +128,11 @@ async function main() {
       try {
         const createdQuestion = await prisma.question.create({
           data: {
-            id: question.id, // Now this is already a string
+            id: question.id,
             title: question.title,
             content: question.body,
             score: question.score || 0,
-            userId: question.user.id, // Now this is already a string
+            userId: question.user.id,
             createdAt: new Date(question.creation * 1000),
             updatedAt: new Date(question.creation * 1000)
           }
@@ -119,7 +148,7 @@ async function main() {
             try {
               await prisma.user.create({
                 data: {
-                  id: comment.user.id, // Now this is already a string
+                  id: comment.user.id,
                   name: comment.user.name,
                   email: `user_${comment.user.id}@example.com`,
                   createdAt: new Date(),
@@ -134,10 +163,10 @@ async function main() {
             try {
               await prisma.comment.create({
                 data: {
-                  id: comment.id, // Now this is already a string
+                  id: comment.id,
                   content: comment.body,
-                  userId: comment.user.id, // Now this is already a string
-                  questionId: question.id, // Now this is already a string
+                  userId: comment.user.id,
+                  questionId: question.id,
                   answerId: null,
                   createdAt: new Date(),
                   updatedAt: new Date()
@@ -161,7 +190,7 @@ async function main() {
             try {
               await prisma.user.create({
                 data: {
-                  id: answer.user.id, // Now this is already a string
+                  id: answer.user.id,
                   name: answer.user.name,
                   email: `user_${answer.user.id}@example.com`,
                   createdAt: new Date(),
@@ -176,12 +205,12 @@ async function main() {
             try {
               const createdAnswer = await prisma.answer.create({
                 data: {
-                  id: answer.id, // Now this is already a string
+                  id: answer.id,
                   content: answer.body,
                   score: answer.score || 0,
                   accepted: answer.accepted || false,
-                  userId: answer.user.id, // Now this is already a string
-                  questionId: question.id, // Now this is already a string
+                  userId: answer.user.id,
+                  questionId: question.id, 
                   createdAt: new Date(answer.creation * 1000),
                   updatedAt: new Date(answer.creation * 1000)
                 }
@@ -197,7 +226,7 @@ async function main() {
                   try {
                     await prisma.user.create({
                       data: {
-                        id: comment.user.id, // Now this is already a string
+                        id: comment.user.id,
                         name: comment.user.name,
                         email: `user_${comment.user.id}@example.com`,
                         createdAt: new Date(),
@@ -212,11 +241,11 @@ async function main() {
                   try {
                     await prisma.comment.create({
                       data: {
-                        id: comment.id, // Now this is already a string
+                        id: comment.id, 
                         content: comment.body,
-                        userId: comment.user.id, // Now this is already a string
+                        userId: comment.user.id, 
                         questionId: null,
-                        answerId: answer.id, // Now this is already a string
+                        answerId: answer.id, 
                         createdAt: new Date(),
                         updatedAt: new Date()
                       }

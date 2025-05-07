@@ -23,8 +23,8 @@ The easiest way to run the application is using Docker and Docker Compose:
 
 2. Clone the repository:
    ```
-   git clone https://github.com/KritGupta7/sayari-fullstack-challenge.git
-   cd sayari-fullstack-challenge
+   git clone https://github.com/KritGupta7/sayari-backend-challenge.git
+   cd sayari-challenge
    ```
 
 3. Start the application:
@@ -60,8 +60,8 @@ If you prefer to run the application without Docker, follow these steps:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/KritGupta7/sayari-fullstack-challenge.git
-   cd sayari-fullstack-challenge
+   git clone https://github.com/KritGupta7/sayari-backend-challenge.git
+   cd sayari-challenge
    ```
 
 2. Install dependencies:
