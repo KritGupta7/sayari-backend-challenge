@@ -24,7 +24,7 @@ The easiest way to run the application is using Docker and Docker Compose:
 2. Clone the repository:
    ```
    git clone https://github.com/KritGupta7/sayari-fullstack-challenge.git
-   cd sayari-fullstack-challenge
+   cd sayari-challenge
    ```
 
 3. Start the application:
@@ -61,7 +61,7 @@ If you prefer to run the application without Docker, follow these steps:
 1. Clone the repository:
    ```
    git clone https://github.com/KritGupta7/sayari-fullstack-challenge.git
-   cd sayari-backend-challenge
+   cd sayari-challenge
    ```
 
 2. Install dependencies:
@@ -157,7 +157,7 @@ The database uses a relational model with the following entities:
 - **User**: Represents application users
 - **Question**: Contains question data linked to a user
 - **Answer**: Represents answers to questions, linked to both questions and users
-- **Comment**: (If implemented) Represents comments on questions or answers
+- **Comment**: Represents comments on questions or answers
 
 ### API Design
 

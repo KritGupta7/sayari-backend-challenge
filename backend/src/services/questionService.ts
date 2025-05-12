@@ -1,19 +1,33 @@
 import { prisma } from '../prisma';
 import { CreateQuestionDto, UpdateQuestionDto } from '../types';
 import { NotFoundError } from '../utils/errors';
-import { CreateAnswerDto, Answer } from '../types/answers';
+import { CreateAnswerDto } from '../types/answers';
+import { v4 as uuidv4 } from 'uuid';
+import { Question, Answer } from '../generated/prisma';
 
 export class QuestionService {
   // Get all questions with related data
-  async getAllQuestions() {
-    // TODO: Add pagination
+  async getAllQuestions(limit?: number, offset?: number) {
+    // Support pagination but default to all records if not specified
     try {
       return prisma.question.findMany({
+        ...(limit ? { take: limit } : {}),
+        ...(offset ? { skip: offset } : {}),
         include: {
           user: true,
-          answers: {
+          comments: {
             include: {
               user: true
+            }
+          },
+          answers: {
+            include: {
+              user: true,
+              comments: {
+                include: {
+                  user: true
+                }
+              }
             }
           }
         }
@@ -25,14 +39,24 @@ export class QuestionService {
   }
 
   // Get a single question with details
-  async getQuestionById(id: string) {
+  async getQuestionById(id: string): Promise<Question> {
     const question = await prisma.question.findUnique({
       where: { id },
       include: {
         user: true,
-        answers: {
+        comments: {
           include: {
             user: true
+          }
+        },
+        answers: {
+          include: {
+            user: true,
+            comments: {
+              include: {
+                user: true
+              }
+            }
           }
         }
       }
@@ -52,9 +76,19 @@ export class QuestionService {
       where: { userId },
       include: {
         user: true,
-        answers: {
+        comments: {
           include: {
             user: true
+          }
+        },
+        answers: {
+          include: {
+            user: true,
+            comments: {
+              include: {
+                user: true
+              }
+            }
           }
         }
       }
@@ -68,9 +102,14 @@ export class QuestionService {
       throw new Error('Missing required fields');
     }
 
+    // Generate a unique ID for the question
+    const id = uuidv4();
+
     return prisma.question.create({
       data: {
-        ...data,
+        id,
+        title: data.title,
+        content: data.content,
         userId
       },
       include: {
@@ -124,18 +163,23 @@ export class QuestionService {
 
   // Add a new answer to a question
   async addAnswer(questionId: string, data: CreateAnswerDto): Promise<Answer> {
+    // Generate a unique ID for the answer
+    const id = uuidv4();
+
     return prisma.answer.create({
       data: {
-        ...data,
+        id,
+        content: data.content,
+        userId: data.userId,
         questionId
       },
       include: {
         user: true
       }
-    });
+    }) as Promise<Answer>;
   }
 
-  async getAnswersByUserId(userId: string): Promise<Answer[]> {
+  async getAnswersByUserId(userId: string) {
     return prisma.answer.findMany({
       where: { userId },
       include: {
